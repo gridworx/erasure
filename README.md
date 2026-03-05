@@ -250,70 +250,49 @@ on the asset record. Done.
 
 ---
 
-## Building the Bootable ISO
+## Development
 
-The ISO is built automatically by GitHub Actions on every tag push. You can also
-build it locally on any Debian/Ubuntu machine (or WSL2).
+<details>
+<summary>For contributors and anyone who wants to build from source or customize the ISO.</summary>
 
-### Automated (GitHub Actions)
-
-1. Push a tag:
+### Getting Started
 
 ```bash
-git tag v0.1.0
-git push origin v0.1.0
+git clone https://github.com/gridworx/erasure.git
+cd erasure
+pip install -e ".[dev]"
+
+pytest                                           # run tests
+erasure-ctl --mock --data-dir ./erasure-data/    # TUI with mock drives
+python scripts/generate_sample_report.py         # sample PDF/HTML
 ```
 
-2. GitHub Actions builds the ISO (~15 minutes)
-3. Download it from the [Releases](https://github.com/gridworx/erasure/releases) page
+### Building the ISO Locally
 
-The workflow can also be triggered manually from the **Actions** tab.
-
-### Local Build (Debian/Ubuntu or WSL2)
+Requires a Debian/Ubuntu host (or WSL2):
 
 ```bash
 sudo apt-get install live-build
-
 cd iso/
 sudo bash build.sh
-# Output: iso/erasure-<version>-amd64.iso
 ```
 
-### What's in the ISO
+The ISO is also built automatically by GitHub Actions on every tag push
+(`git tag v0.1.0 && git push origin v0.1.0`) or via manual trigger from the
+Actions tab. The ISO is attached to the GitHub Release page.
 
-- Debian Bookworm (minimal, no desktop environment)
-- Linux kernel with all storage controller modules
-- Non-free firmware (Intel, Realtek, Broadcom, Atheros, QLogic)
-- `nwipe`, `nvme-cli`, `hdparm`, `smartmontools`, `dmidecode`
-- Python 3 + Textual + WeasyPrint + Jinja2
-- `erasure-ctl` pre-installed and auto-launched on boot
-- GRUB bootloader (UEFI + Legacy BIOS)
+**What's in the ISO:** Debian Bookworm (minimal), Linux kernel with all storage
+modules, non-free firmware (Intel, Realtek, Broadcom, Atheros, QLogic),
+`nwipe`, `nvme-cli`, `hdparm`, `smartmontools`, `dmidecode`, Python 3 + Textual +
+WeasyPrint + Jinja2, `erasure-ctl` pre-installed and auto-launched on boot,
+GRUB bootloader (UEFI + Legacy BIOS). Estimated size: ~800 MB – 1.2 GB.
 
-Estimated ISO size: ~800 MB – 1.2 GB.
+### Testing the ISO in a VM
 
-### Boot Flow
-
-```
-USB Stick
-  └─> GRUB Bootloader
-        └─> Linux Kernel + initramfs
-              └─> live-boot (loads squashfs into RAM)
-                    └─> systemd
-                          ├─> Mount USB DATA partition at /mnt/erasure-data
-                          └─> Launch erasure-ctl TUI on tty1
-```
-
-### Testing the ISO Locally
-
-Before flashing to physical hardware, test in a VM:
-
-**QEMU (quick, headless-friendly):**
+**QEMU:**
 
 ```bash
-# Create a dummy disk to wipe
 qemu-img create -f qcow2 test-disk.qcow2 1G
-
-# Boot the ISO with UEFI firmware
 qemu-system-x86_64 \
     -m 2048 \
     -cdrom iso/erasure-*-amd64.iso \
@@ -323,47 +302,15 @@ qemu-system-x86_64 \
     -bios /usr/share/ovmf/OVMF.fd
 ```
 
-Install OVMF for UEFI: `sudo apt install ovmf`
+**VirtualBox:** Create a Debian 64-bit VM with 2 GB RAM, a small virtual disk as
+the wipe target, mount the ISO, enable EFI under System > Motherboard, and boot.
 
-**VirtualBox:**
+Verify: GRUB menu appears, TUI auto-launches, virtual disk is detected, wipe
+completes, reports are generated.
 
-1. Create a new VM (Type: Linux, Version: Debian 64-bit)
-2. Allocate at least 2 GB RAM
-3. Add a small virtual hard disk (1–2 GB) to act as the wipe target
-4. Mount the ISO as a virtual optical disk
-5. Under **System > Motherboard**, enable EFI
-6. Boot the VM — the Erasure TUI should auto-launch
-
-**What to verify:**
-
-- GRUB menu appears with "Erasure — Secure Disk Wipe Tool"
-- TUI launches automatically after boot
-- Virtual disk is detected in the drive list
-- A wipe can be initiated and completes successfully
-- Reports are generated (check `/mnt/erasure-data/reports/` or `/tmp/erasure-data/reports/`)
-
----
-
-## Development
+### Building a Standalone Binary
 
 ```bash
-# Clone the repo
-git clone https://github.com/gridworx/erasure.git
-cd erasure
-
-# Install in dev mode
-pip install -e ".[dev]"
-
-# Run tests
-pytest
-
-# Run with mock data (no real drives)
-erasure-ctl --mock --data-dir ./erasure-data/
-
-# Generate sample reports
-python scripts/generate_sample_report.py
-
-# Build standalone binary
 pip install pyinstaller
 pyinstaller --onefile --name erasure-ctl erasure_ctl/__main__.py
 ```
@@ -388,26 +335,15 @@ erasure/
 │   └── tui/
 │       └── app.py                Textual TUI application
 ├── erasure-data/                 Example config files
-│   ├── example.company.csv
-│   ├── example.operators.csv
-│   ├── example.assets.csv
-│   └── example.settings.csv
-├── iso/                          Bootable ISO build system
-│   ├── build.sh                  Main build script (calls live-build)
-│   └── config/
-│       ├── package-lists/        Debian packages to include
-│       ├── hooks/live/           Build-time hooks (install erasure-ctl)
-│       ├── includes.chroot/      Files baked into the live filesystem
-│       └── bootloaders/          Custom GRUB configuration
-├── scripts/
-│   ├── generate_sample_report.py
-│   ├── build_binary.py
-│   └── create_usb.sh            USB flashing + DATA partition helper
+├── iso/                          Bootable ISO build system (Debian live-build)
+├── scripts/                      Helper scripts (sample reports, USB creation)
 ├── .github/workflows/
-│   └── build-iso.yml             GitHub Actions ISO build
+│   └── build-iso.yml             GitHub Actions ISO build on tag push
 ├── pyproject.toml
 └── README.md
 ```
+
+</details>
 
 ---
 
