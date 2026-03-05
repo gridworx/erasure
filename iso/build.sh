@@ -86,8 +86,12 @@ echo "[4/4] Building ISO (this takes 10-20 minutes)..."
 export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$PATH"
 lb build
 
-# Rename output for clarity
-ISO_FILE=$(ls -1 live-image-amd64.hybrid.iso 2>/dev/null || true)
+# Find and rename output ISO
+echo ""
+echo "Searching for output ISO..."
+ls -la *.iso *.hybrid.iso *.img 2>/dev/null || true
+
+ISO_FILE=$(ls -1 *.hybrid.iso *.iso 2>/dev/null | head -1 || true)
 if [ -n "$ISO_FILE" ]; then
     VERSION=$(grep -oP 'version = "\K[^"]+' "$PROJECT_ROOT/pyproject.toml" || echo "dev")
     OUTPUT_NAME="erasure-${VERSION}-amd64.iso"
@@ -100,6 +104,7 @@ if [ -n "$ISO_FILE" ]; then
     echo "  Size:   $SIZE"
     echo "============================================"
 else
-    echo "ERROR: ISO file not found. Check build logs above."
+    echo "ERROR: No .iso file found in $(pwd). Build may have failed."
+    ls -la
     exit 1
 fi
