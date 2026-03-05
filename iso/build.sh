@@ -65,20 +65,21 @@ cp -r "$PROJECT_ROOT/erasure_ctl" config/includes.chroot/opt/erasure-ctl-src/
 cp "$PROJECT_ROOT/pyproject.toml" config/includes.chroot/opt/erasure-ctl-src/
 cp "$PROJECT_ROOT/README.md" config/includes.chroot/opt/erasure-ctl-src/
 
-# Prepare isolinux files that live-build expects at /root/isolinux/
-# The file locations vary across distros, so we search dynamically.
-echo "    Staging isolinux bootloader files..."
-mkdir -p /root/isolinux
+# Prepare isolinux files inside the chroot where live-build expects them.
+# lb_binary_syslinux looks for /root/isolinux/ inside the chroot, not on the host.
+echo "    Staging isolinux bootloader files into chroot..."
+ISOLINUX_DST="config/includes.chroot/root/isolinux"
+mkdir -p "$ISOLINUX_DST"
 for f in isolinux.bin vesamenu.c32 ldlinux.c32 libcom32.c32 libutil.c32; do
     SRC=$(find /usr -name "$f" -print -quit 2>/dev/null || true)
     if [ -n "$SRC" ]; then
-        cp "$SRC" /root/isolinux/
+        cp "$SRC" "$ISOLINUX_DST/"
         echo "      Found $f at $SRC"
     else
         echo "      WARNING: $f not found on host"
     fi
 done
-ls -la /root/isolinux/
+ls -la "$ISOLINUX_DST/"
 
 echo "[4/4] Building ISO (this takes 10-20 minutes)..."
 lb build
