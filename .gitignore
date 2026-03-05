@@ -1,0 +1,29 @@
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+dist/
+build/
+*.egg-info/
+*.spec
+.venv/
+venv/
+
+# Internal planning docs (not for distribution)
+PLAN.md
+
+# User config files (only example files are committed)
+erasure-data/company.csv
+erasure-data/operators.csv
+erasure-data/assets.csv
+erasure-data/settings.csv
+erasure-data/logo.png
+erasure-data/logo.jpg
+erasure-data/results.csv
+erasure-data/reports/
+erasure-data/photos/
+
+# OS files
+desktop.ini
+.DS_Store
+Thumbs.db

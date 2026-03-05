@@ -1,0 +1,21 @@
+[Unit]
+Description=Erasure — Secure Disk Wipe Tool
+After=multi-user.target systemd-logind.service
+Wants=erasure-mount-data.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/erasure-ctl --data-dir /mnt/erasure-data
+StandardInput=tty
+StandardOutput=tty
+TTYPath=/dev/tty1
+TTYReset=yes
+TTYVHangup=yes
+TTYVTDisallocate=yes
+Restart=on-failure
+RestartSec=3
+Environment=TERM=linux
+Environment=LANG=en_US.UTF-8
+
+[Install]
+WantedBy=multi-user.target

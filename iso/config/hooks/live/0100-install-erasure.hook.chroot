@@ -1,0 +1,31 @@
+#!/bin/bash
+# 0100-install-erasure.hook.chroot
+#
+# Runs inside the chroot during ISO build.
+# Installs erasure-ctl and Python dependencies not available as Debian packages.
+
+set -euo pipefail
+
+echo ">>> Installing Python dependencies via pip..."
+pip3 install --break-system-packages \
+    "textual>=1.0.0" \
+    "weasyprint>=62.0" \
+    "pillow>=10.0"
+
+echo ">>> Installing erasure-ctl from staged source..."
+pip3 install --break-system-packages --no-deps /opt/erasure-ctl-src/
+
+echo ">>> Verifying erasure-ctl installation..."
+python3 -c "import erasure_ctl; print('erasure-ctl installed successfully')"
+
+echo ">>> Cleaning up staged source..."
+rm -rf /opt/erasure-ctl-src
+
+echo ">>> Generating locales..."
+echo "en_US.UTF-8 UTF-8" > /etc/locale.gen
+locale-gen
+
+echo ">>> Setting default locale..."
+echo 'LANG=en_US.UTF-8' > /etc/default/locale
+
+echo ">>> Hook 0100-install-erasure complete."

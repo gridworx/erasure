@@ -1,0 +1,2 @@
+default_method,default_rounds,default_verify,report_format,exclude_usb
+auto,1,last,pdf,true

@@ -1,0 +1,64 @@
+## Erasure tools
+nwipe
+nvme-cli
+hdparm
+smartmontools
+
+## System identification
+dmidecode
+lshw
+pciutils
+usbutils
+
+## Python runtime
+python3
+python3-pip
+python3-venv
+python3-jinja2
+python3-pil
+python3-yaml
+python3-cffi
+
+## WeasyPrint native dependencies (Pango, Cairo, GDK-Pixbuf, fonts)
+libpango-1.0-0
+libpangocairo-1.0-0
+libpangoft2-1.0-0
+libcairo2
+libgdk-pixbuf-2.0-0
+libffi-dev
+fonts-liberation2
+fonts-noto-core
+
+## Firmware for broad hardware support
+firmware-linux-nonfree
+firmware-misc-nonfree
+firmware-realtek
+firmware-iwlwifi
+firmware-atheros
+firmware-bnx2
+firmware-bnx2x
+firmware-qlogic
+live-task-non-free-firmware-pc
+
+## Storage controller drivers (kernel modules are in linux-image,
+## but some need firmware blobs from the packages above)
+
+## Filesystem and partition tools
+parted
+dosfstools
+e2fsprogs
+util-linux
+
+## Networking (for optional network save feature)
+iproute2
+cifs-utils
+
+## Console and TUI
+console-setup
+kbd
+locales
+
+## System
+systemd
+dbus
+sudo

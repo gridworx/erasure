@@ -1,0 +1,7 @@
+system_serial,asset_tag,hostname,system_model,assigned_user,drive_serial,disposition_method,ticket_number
+5CG1234XYZ,ACME-LAP-001,ajohnson-lap,HP EliteBook 840 G8,Alice Johnson,WD-WMC3T0123456,Donation,HD-1001
+MXL9876ABC,ACME-DT-002,front-desk-pc,Dell OptiPlex 7090,Front Desk,,E-waste / Recycling,HD-1002
+5CG9999DEF,ACME-LAP-003,bwilliams-lap,Lenovo ThinkPad T14,Bob Williams,,Donation,HD-1003
+PF3BABCDE1,ACME-LAP-004,cmartinez-mbp,MacBook Pro 14 M2,Carol Martinez,,Donation,HD-1004
+R90XYZABC2,ACME-DT-005,server-room-ws,Dell Precision 3660,IT Department,BTDA1234ABCD,E-waste / Recycling,HD-1005
+FVFGH12345,ACME-LAP-006,ajohnson-mbp,MacBook Air M1,Alice Johnson,,Donation,HD-1006

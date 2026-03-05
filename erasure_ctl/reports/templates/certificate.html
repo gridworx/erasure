@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Certificate of Data Erasure — {{ cert.certificate_id }}</title>
+    <style>{{ css }}</style>
+</head>
+<body>
+<div class="certificate">
+
+    <!-- Header -->
+    <div class="header">
+        <div class="header-logo">
+            {% if logo_data %}
+            <img src="data:image/png;base64,{{ logo_data }}" alt="{{ company.name }}">
+            {% else %}
+            <span style="font-size:14pt;font-weight:700;color:#1a365d;">{{ company.name }}</span>
+            {% endif %}
+        </div>
+        <div class="header-title">
+            <h1>CERTIFICATE OF DATA ERASURE</h1>
+            <div class="cert-id">{{ cert.certificate_id }}</div>
+        </div>
+    </div>
+
+    <!-- Meta -->
+    <div class="meta-grid">
+        <div><span class="label">Date:</span></div>
+        <div><span class="value">{{ cert.timestamp }}</span></div>
+        <div><span class="label">Operator:</span></div>
+        <div><span class="value">{{ cert.operator_name }}{% if cert.operator_id %} ({{ cert.operator_id }}){% endif %}</span></div>
+        <div><span class="label">Organization:</span></div>
+        <div><span class="value">{{ company.name }}</span></div>
+    </div>
+
+    <!-- Source System -->
+    {% if cert.source_serial or cert.source_asset_tag %}
+    <div class="section">
+        <div class="section-title">Source System</div>
+        <table class="info-table">
+            {% if cert.source_serial %}
+            <tr><td>System Serial</td><td>{{ cert.source_serial }}</td></tr>
+            {% endif %}
+            {% if cert.source_asset_tag %}
+            <tr><td>Asset Tag</td><td>{{ cert.source_asset_tag }}</td></tr>
+            {% endif %}
+            {% if cert.source_hostname %}
+            <tr><td>Hostname</td><td>{{ cert.source_hostname }}</td></tr>
+            {% endif %}
+            {% if cert.source_model %}
+            <tr><td>System Model</td><td>{{ cert.source_model }}</td></tr>
+            {% endif %}
+            {% if cert.assigned_user %}
+            <tr><td>Last Assigned User</td><td>{{ cert.assigned_user }}</td></tr>
+            {% endif %}
+            {% if cert.ticket_number %}
+            <tr><td>Helpdesk Ticket</td><td>{{ cert.ticket_number }}</td></tr>
+            {% endif %}
+        </table>
+    </div>
+    {% endif %}
+
+    <!-- Disposition -->
+    {% if cert.disposition_method %}
+    <div class="section">
+        <div class="section-title">Asset Disposition</div>
+        <table class="info-table">
+            <tr><td>Disposition Method</td><td>{{ cert.disposition_method }}</td></tr>
+            {% if cert.disposition_recipient %}
+            <tr><td>Recipient</td><td>{{ cert.disposition_recipient }}</td></tr>
+            {% endif %}
+        </table>
+    </div>
+    {% endif %}
+
+    <!-- Device Information -->
+    <div class="section">
+        <div class="section-title">Device Information</div>
+        <table class="info-table">
+            {% if cert.drive_model %}
+            <tr><td>Model</td><td>{{ cert.drive_model }}</td></tr>
+            {% endif %}
+            <tr><td>Serial Number</td><td>{{ cert.drive_serial }}</td></tr>
+            {% if cert.drive_firmware %}
+            <tr><td>Firmware</td><td>{{ cert.drive_firmware }}</td></tr>
+            {% endif %}
+            {% if cert.drive_capacity %}
+            <tr><td>Capacity</td><td>{{ cert.drive_capacity }}</td></tr>
+            {% endif %}
+            {% if cert.drive_interface %}
+            <tr><td>Interface</td><td>{{ cert.drive_interface }}</td></tr>
+            {% endif %}
+        </table>
+    </div>
+
+    <!-- Erasure Details -->
+    <div class="section">
+        <div class="section-title">Erasure Details</div>
+        <table class="info-table">
+            <tr><td>Method</td><td>{{ cert.erasure_method_display }}</td></tr>
+            {% if cert.erasure_passes %}
+            <tr><td>Passes</td><td>{{ cert.erasure_passes }}</td></tr>
+            {% endif %}
+            {% if cert.verification %}
+            <tr><td>Verification</td><td>{{ cert.verification }}</td></tr>
+            {% endif %}
+            <tr><td>Start Time</td><td>{{ cert.start_time or cert.timestamp }}</td></tr>
+            {% if cert.end_time %}
+            <tr><td>End Time</td><td>{{ cert.end_time }}</td></tr>
+            {% endif %}
+            {% if cert.duration %}
+            <tr><td>Duration</td><td>{{ cert.duration }}</td></tr>
+            {% endif %}
+            <tr>
+                <td>Result</td>
+                <td class="{{ 'result-pass' if cert.result == 'PASS' else 'result-fail' }}">
+                    {{ '✓ PASS — All sectors overwritten' if cert.result == 'PASS' else '✗ FAIL' }}
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    {% if cert.is_attestation %}
+    <div class="attestation-notice">
+        <strong>⚠ Manual Attestation:</strong> This certificate was generated via manual attestation.
+        Erasure was performed outside the Erasure tool using the method noted above.
+        {% if cert.evidence_photos %}Photo evidence is attached on the following page.{% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Compliance -->
+    <div class="compliance-box">
+        <div class="standard">NIST SP 800-88r2</div>
+        <div>Data sanitization performed in accordance with NIST SP 800-88 Revision 2.
+        Data recovery from this media is infeasible using state-of-the-art laboratory techniques.</div>
+    </div>
+
+    <!-- Erasure System Info -->
+    {% if cert.erasure_system %}
+    <div class="section">
+        <div class="section-title">Erasure System</div>
+        <table class="info-table">
+            <tr><td>Software</td><td>Erasure v{{ version }}{% if cert.engine_version %} ({{ cert.engine_version }}){% endif %}</td></tr>
+        </table>
+    </div>
+    {% endif %}
+
+    <!-- Hash -->
+    <div class="hash-line">
+        SHA-256: {{ cert.sha256 or 'Calculated after generation' }}
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <div>
+            {{ company.name }}
+            {% if company.website %}| {{ company.website }}{% endif %}
+            {% if company.phone %}| {{ company.phone }}{% endif %}
+        </div>
+        <div class="footer-logo">
+            {% if logo_data %}
+            <img src="data:image/png;base64,{{ logo_data }}" alt="">
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+
+{% if cert.evidence_photos %}
+<!-- Evidence Page -->
+<div class="certificate">
+    <div class="header">
+        <div class="header-logo">
+            {% if logo_data %}
+            <img src="data:image/png;base64,{{ logo_data }}" alt="{{ company.name }}">
+            {% endif %}
+        </div>
+        <div class="header-title">
+            <h1>PHOTO EVIDENCE</h1>
+            <div class="cert-id">{{ cert.certificate_id }}</div>
+        </div>
+    </div>
+
+    <div class="evidence-grid">
+        {% for photo in cert.evidence_photos %}
+        <div class="evidence-item">
+            <img src="data:image/jpeg;base64,{{ photo.data }}" alt="{{ photo.caption }}">
+            <div class="caption">{{ loop.index }}. {{ photo.caption }}</div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="footer">
+        <div>{{ company.name }} — {{ cert.certificate_id }}</div>
+    </div>
+</div>
+{% endif %}
+
+</body>
+</html>

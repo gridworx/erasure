@@ -1,0 +1,13 @@
+[Unit]
+Description=Mount Erasure USB DATA partition
+DefaultDependencies=no
+After=local-fs.target
+Before=erasure.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/bin/erasure-mount-data.sh
+
+[Install]
+WantedBy=multi-user.target

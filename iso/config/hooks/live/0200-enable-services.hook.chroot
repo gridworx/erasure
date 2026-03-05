@@ -1,0 +1,18 @@
+#!/bin/bash
+# 0200-enable-services.hook.chroot
+#
+# Enable the erasure systemd services so they start on boot.
+
+set -euo pipefail
+
+echo ">>> Enabling erasure systemd services..."
+systemctl enable erasure-mount-data.service
+systemctl enable erasure.service
+
+echo ">>> Making mount script executable..."
+chmod +x /usr/local/bin/erasure-mount-data.sh
+
+# Disable getty on tty1 so our TUI owns it
+systemctl disable getty@tty1.service 2>/dev/null || true
+
+echo ">>> Hook 0200-enable-services complete."
