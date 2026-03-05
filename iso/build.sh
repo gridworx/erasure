@@ -83,6 +83,7 @@ cd "$SCRIPT_DIR"
 ls -la config/bootloaders/isolinux/
 
 echo "[4/4] Building ISO (this takes 10-20 minutes)..."
+export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$PATH"
 lb build
 
 # Rename output for clarity

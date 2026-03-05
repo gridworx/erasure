@@ -3,6 +3,7 @@ linux-image-amd64
 live-boot
 isolinux
 syslinux-common
+syslinux-utils
 
 ## Erasure tools
 nwipe
