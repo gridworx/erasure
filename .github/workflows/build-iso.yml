@@ -22,7 +22,8 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y live-build debian-archive-keyring \
-            isolinux syslinux-common grub-efi-amd64-bin grub-pc-bin \
+            isolinux syslinux-common syslinux-utils \
+            grub-efi-amd64-bin grub-pc-bin \
             mtools xorriso
 
       - name: Build ISO
