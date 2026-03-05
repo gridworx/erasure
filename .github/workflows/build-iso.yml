@@ -26,6 +26,12 @@ jobs:
             grub-efi-amd64-bin grub-pc-bin \
             mtools xorriso
 
+      - name: Verify isohybrid availability
+        run: |
+          which isohybrid || true
+          dpkg -L syslinux-utils | grep isohybrid || true
+          ls -la /usr/bin/isohybrid* 2>/dev/null || true
+
       - name: Build ISO
         run: |
           cd iso
