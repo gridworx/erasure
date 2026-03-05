@@ -18,10 +18,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install live-build and Debian keyring
+      - name: Install live-build and dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y live-build debian-archive-keyring
+          sudo apt-get install -y live-build debian-archive-keyring \
+            isolinux syslinux-common grub-efi-amd64-bin grub-pc-bin \
+            mtools xorriso
 
       - name: Build ISO
         run: |
