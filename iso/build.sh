@@ -65,21 +65,23 @@ cp -r "$PROJECT_ROOT/erasure_ctl" config/includes.chroot/opt/erasure-ctl-src/
 cp "$PROJECT_ROOT/pyproject.toml" config/includes.chroot/opt/erasure-ctl-src/
 cp "$PROJECT_ROOT/README.md" config/includes.chroot/opt/erasure-ctl-src/
 
-# Prepare isolinux files inside the chroot where live-build expects them.
-# lb_binary_syslinux looks for /root/isolinux/ inside the chroot, not on the host.
-echo "    Staging isolinux bootloader files into chroot..."
-ISOLINUX_DST="config/includes.chroot/root/isolinux"
-mkdir -p "$ISOLINUX_DST"
+# Prepare isolinux files. lb_binary_syslinux looks for /root/isolinux/
+# on the HOST after the chroot is packed into squashfs.
+echo "    Staging isolinux bootloader files..."
+mkdir -p /root/isolinux
+mkdir -p config/includes.chroot/root/isolinux
 for f in isolinux.bin vesamenu.c32 ldlinux.c32 libcom32.c32 libutil.c32; do
-    SRC=$(find /usr -name "$f" -print -quit 2>/dev/null || true)
+    SRC=$(find /usr -name "$f" -path "*/bios/*" -print -quit 2>/dev/null || true)
+    [ -z "$SRC" ] && SRC=$(find /usr -name "$f" -print -quit 2>/dev/null || true)
     if [ -n "$SRC" ]; then
-        cp "$SRC" "$ISOLINUX_DST/"
+        cp "$SRC" /root/isolinux/
+        cp "$SRC" config/includes.chroot/root/isolinux/
         echo "      Found $f at $SRC"
     else
         echo "      WARNING: $f not found on host"
     fi
 done
-ls -la "$ISOLINUX_DST/"
+ls -la /root/isolinux/
 
 echo "[4/4] Building ISO (this takes 10-20 minutes)..."
 lb build
