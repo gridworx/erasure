@@ -41,8 +41,7 @@ lb config \
     --distribution bookworm \
     --archive-areas "main contrib non-free non-free-firmware" \
     --architectures amd64 \
-    --linux-packages "linux-image" \
-    --linux-flavours "amd64" \
+    --linux-packages none \
     --mirror-bootstrap "$DEBIAN_MIRROR" \
     --mirror-binary "$DEBIAN_MIRROR" \
     --security false \

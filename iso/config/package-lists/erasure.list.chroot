@@ -1,3 +1,7 @@
+## Kernel
+linux-image-amd64
+live-boot
+
 ## Erasure tools
 nwipe
 nvme-cli
