@@ -33,13 +33,21 @@ fi
 
 echo "[2/4] Configuring live-build..."
 
+DEBIAN_MIRROR="http://deb.debian.org/debian"
+DEBIAN_SECURITY="http://deb.debian.org/debian-security"
+
 lb config \
+    --mode debian \
     --binary-image iso-hybrid \
     --distribution bookworm \
     --archive-areas "main contrib non-free non-free-firmware" \
     --architectures amd64 \
     --linux-packages "linux-image" \
     --linux-flavours "amd64" \
+    --mirror-bootstrap "$DEBIAN_MIRROR" \
+    --mirror-chroot-security "$DEBIAN_SECURITY" \
+    --mirror-binary "$DEBIAN_MIRROR" \
+    --mirror-binary-security "$DEBIAN_SECURITY" \
     --binary-filesystem fat32 \
     --firmware-binary true \
     --firmware-chroot true \
