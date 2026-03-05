@@ -65,6 +65,18 @@ cp -r "$PROJECT_ROOT/erasure_ctl" config/includes.chroot/opt/erasure-ctl-src/
 cp "$PROJECT_ROOT/pyproject.toml" config/includes.chroot/opt/erasure-ctl-src/
 cp "$PROJECT_ROOT/README.md" config/includes.chroot/opt/erasure-ctl-src/
 
+# Create bootloader override with symlinks that resolve inside the chroot.
+# Ubuntu's live-build templates don't include isolinux.bin/vesamenu.c32,
+# but lb_binary_syslinux copies these into chroot/root/isolinux/ and then
+# dereferences symlinks inside the chroot.
+echo "    Preparing bootloader overrides..."
+mkdir -p config/bootloaders/isolinux
+ln -sf /usr/lib/ISOLINUX/isolinux.bin config/bootloaders/isolinux/isolinux.bin
+for mod in vesamenu.c32 ldlinux.c32 libcom32.c32 libutil.c32; do
+    ln -sf "/usr/lib/syslinux/modules/bios/$mod" "config/bootloaders/isolinux/$mod"
+done
+ls -la config/bootloaders/isolinux/
+
 echo "[4/4] Building ISO (this takes 10-20 minutes)..."
 lb build
 
