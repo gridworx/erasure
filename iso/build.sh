@@ -40,7 +40,6 @@ lb config \
     --architectures amd64 \
     --linux-packages "linux-image" \
     --linux-flavours "amd64" \
-    --bootloaders "grub-efi,syslinux" \
     --binary-filesystem fat32 \
     --firmware-binary true \
     --firmware-chroot true \
@@ -52,8 +51,7 @@ lb config \
     --bootappend-live "boot=live components quiet splash timezone=UTC" \
     --apt-indices false \
     --apt-recommends false \
-    --cache true \
-    --debootstrap-options "--variant=minbase"
+    --cache true
 
 # Copy our Python package into the chroot so the hook can install it
 echo "[3/4] Staging erasure-ctl source for chroot installation..."
