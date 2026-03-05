@@ -46,7 +46,6 @@ lb config \
     --mirror-bootstrap "$DEBIAN_MIRROR" \
     --mirror-binary "$DEBIAN_MIRROR" \
     --security false \
-    --updates false \
     --binary-filesystem fat32 \
     --firmware-binary true \
     --firmware-chroot true \
