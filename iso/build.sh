@@ -75,6 +75,11 @@ ln -sf /usr/lib/ISOLINUX/isolinux.bin config/bootloaders/isolinux/isolinux.bin
 for mod in vesamenu.c32 ldlinux.c32 libcom32.c32 libutil.c32; do
     ln -sf "/usr/lib/syslinux/modules/bios/$mod" "config/bootloaders/isolinux/$mod"
 done
+# Create a valid empty cpio archive for the bootlogo (syslinux splash).
+# The binary_syslinux script reads this with cpio; an empty file causes an error.
+cd config/bootloaders/isolinux
+: | cpio -o --quiet > bootlogo 2>/dev/null || true
+cd "$SCRIPT_DIR"
 ls -la config/bootloaders/isolinux/
 
 echo "[4/4] Building ISO (this takes 10-20 minutes)..."
