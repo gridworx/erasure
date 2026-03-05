@@ -65,6 +65,22 @@ cp -r "$PROJECT_ROOT/erasure_ctl" config/includes.chroot/opt/erasure-ctl-src/
 cp "$PROJECT_ROOT/pyproject.toml" config/includes.chroot/opt/erasure-ctl-src/
 cp "$PROJECT_ROOT/README.md" config/includes.chroot/opt/erasure-ctl-src/
 
+# Prepare isolinux files that live-build expects at /root/isolinux/
+# On Ubuntu, the package installs to /usr/lib/ISOLINUX/ and
+# /usr/lib/syslinux/modules/bios/ but live-build looks in /root/isolinux/
+if [ ! -f /root/isolinux/isolinux.bin ]; then
+    echo "    Staging isolinux bootloader files..."
+    mkdir -p /root/isolinux
+    cp /usr/lib/ISOLINUX/isolinux.bin /root/isolinux/ 2>/dev/null \
+        || cp /usr/lib/syslinux/isolinux.bin /root/isolinux/ 2>/dev/null \
+        || true
+    for mod in vesamenu.c32 ldlinux.c32 libcom32.c32 libutil.c32; do
+        cp "/usr/lib/syslinux/modules/bios/$mod" /root/isolinux/ 2>/dev/null \
+            || cp "/usr/lib/syslinux/$mod" /root/isolinux/ 2>/dev/null \
+            || true
+    done
+fi
+
 echo "[4/4] Building ISO (this takes 10-20 minutes)..."
 lb build
 
