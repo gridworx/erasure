@@ -104,22 +104,28 @@ GRUB_CFG="$SCRIPT_DIR/config/bootloaders/grub-efi/grub.cfg"
 if [ ! -f "$GRUB_CFG" ]; then
     echo "WARNING: No grub-efi/grub.cfg found, skipping EFI"
 else
-    # Ensure kernel/initrd have the expected names in binary/live/
-    echo "    Checking kernel files in binary/live/..."
-    ls -la binary/live/vmlinuz* binary/live/initrd* 2>/dev/null || true
+    # Ensure kernel and initrd are in binary/live/ for GRUB to find.
+    # With --linux-packages none, live-build doesn't copy them automatically.
+    mkdir -p binary/live
+    echo "    Contents of binary/live/:"
+    ls binary/live/ 2>/dev/null || echo "    (empty)"
+
     if [ ! -f binary/live/vmlinuz ]; then
-        VMLINUZ=$(ls -1 binary/live/vmlinuz-* 2>/dev/null | sort -V | tail -1)
-        INITRD=$(ls -1 binary/live/initrd.img-* 2>/dev/null | sort -V | tail -1)
+        echo "    Copying kernel/initrd from chroot to binary/live/..."
+        VMLINUZ=$(ls -1t chroot/boot/vmlinuz-* 2>/dev/null | head -1 || true)
+        INITRD=$(ls -1t chroot/boot/initrd.img-* 2>/dev/null | head -1 || true)
         if [ -n "$VMLINUZ" ]; then
-            ln -sf "$(basename "$VMLINUZ")" binary/live/vmlinuz
-            echo "    Linked vmlinuz -> $(basename "$VMLINUZ")"
+            cp "$VMLINUZ" binary/live/vmlinuz
+            echo "    Copied $(basename "$VMLINUZ") -> vmlinuz"
         else
-            echo "    ERROR: No vmlinuz found in binary/live/"
-            ls -la binary/live/
+            echo "    ERROR: No vmlinuz found in chroot/boot/"
+            ls chroot/boot/ 2>/dev/null || echo "    chroot/boot/ not found"
         fi
         if [ -n "$INITRD" ]; then
-            ln -sf "$(basename "$INITRD")" binary/live/initrd.img
-            echo "    Linked initrd.img -> $(basename "$INITRD")"
+            cp "$INITRD" binary/live/initrd.img
+            echo "    Copied $(basename "$INITRD") -> initrd.img"
+        else
+            echo "    ERROR: No initrd found in chroot/boot/"
         fi
     else
         echo "    vmlinuz and initrd.img already present"
