@@ -104,6 +104,26 @@ GRUB_CFG="$SCRIPT_DIR/config/bootloaders/grub-efi/grub.cfg"
 if [ ! -f "$GRUB_CFG" ]; then
     echo "WARNING: No grub-efi/grub.cfg found, skipping EFI"
 else
+    # Ensure kernel/initrd have the expected names in binary/live/
+    echo "    Checking kernel files in binary/live/..."
+    ls -la binary/live/vmlinuz* binary/live/initrd* 2>/dev/null || true
+    if [ ! -f binary/live/vmlinuz ]; then
+        VMLINUZ=$(ls -1 binary/live/vmlinuz-* 2>/dev/null | sort -V | tail -1)
+        INITRD=$(ls -1 binary/live/initrd.img-* 2>/dev/null | sort -V | tail -1)
+        if [ -n "$VMLINUZ" ]; then
+            ln -sf "$(basename "$VMLINUZ")" binary/live/vmlinuz
+            echo "    Linked vmlinuz -> $(basename "$VMLINUZ")"
+        else
+            echo "    ERROR: No vmlinuz found in binary/live/"
+            ls -la binary/live/
+        fi
+        if [ -n "$INITRD" ]; then
+            ln -sf "$(basename "$INITRD")" binary/live/initrd.img
+            echo "    Linked initrd.img -> $(basename "$INITRD")"
+        fi
+    else
+        echo "    vmlinuz and initrd.img already present"
+    fi
     # Build standalone GRUB EFI binary
     grub-mkstandalone \
         --format=x86_64-efi \
