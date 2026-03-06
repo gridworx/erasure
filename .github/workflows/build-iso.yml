@@ -26,13 +26,6 @@ jobs:
             grub-efi-amd64-bin grub-pc-bin \
             mtools xorriso
 
-      - name: Debug live-build EFI scripts
-        run: |
-          ls -la /usr/lib/live/build/binary_grub* 2>/dev/null || echo "No grub scripts found"
-          ls -la /usr/lib/live/build/binary*efi* 2>/dev/null || echo "No efi scripts found"
-          grep -r "BOOTLOADER_EFI" /usr/lib/live/build/ 2>/dev/null | head -5 || echo "No EFI references"
-          grep -r "grub-efi" /usr/lib/live/build/binary_grub* 2>/dev/null | head -5 || echo "No grub-efi refs"
-
       - name: Build ISO
         run: |
           cd iso

@@ -95,6 +95,67 @@ echo "[4/4] Building ISO (this takes 10-20 minutes)..."
 export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$PATH"
 lb build
 
+# Ubuntu's live-build has no EFI scripts, so we rebuild the ISO with
+# both BIOS (isolinux) and UEFI (GRUB EFI) boot support using xorriso.
+echo ""
+echo "[5/5] Adding UEFI boot support..."
+
+GRUB_CFG="$SCRIPT_DIR/config/bootloaders/grub-efi/grub.cfg"
+if [ ! -f "$GRUB_CFG" ]; then
+    echo "WARNING: No grub-efi/grub.cfg found, skipping EFI"
+else
+    # Build standalone GRUB EFI binary
+    grub-mkstandalone \
+        --format=x86_64-efi \
+        --output=bootx64.efi \
+        --locales="" \
+        --fonts="" \
+        "boot/grub/grub.cfg=$GRUB_CFG"
+
+    # Create FAT filesystem image for EFI System Partition
+    dd if=/dev/zero of=efi.img bs=1M count=4
+    mkfs.vfat efi.img
+    mmd -i efi.img ::/EFI ::/EFI/BOOT
+    mcopy -i efi.img bootx64.efi ::/EFI/BOOT/BOOTX64.EFI
+
+    # Find the isohdpfx.bin for hybrid MBR boot
+    ISOHDPFX=$(find /usr -name "isohdpfx.bin" -print -quit 2>/dev/null || true)
+    if [ -z "$ISOHDPFX" ]; then
+        echo "WARNING: isohdpfx.bin not found, hybrid MBR unavailable"
+        ISOHDPFX_OPT=""
+    else
+        ISOHDPFX_OPT="-isohybrid-mbr $ISOHDPFX"
+    fi
+
+    # Rebuild ISO with BIOS + UEFI boot from the binary/ directory
+    xorriso -as mkisofs \
+        -iso-level 3 \
+        -full-iso9660-filenames \
+        -volid "ERASURE" \
+        -appid "Erasure Secure Disk Wipe Tool" \
+        -publisher "Erasure Project" \
+        -eltorito-boot isolinux/isolinux.bin \
+        -no-emul-boot \
+        -boot-load-size 4 \
+        -boot-info-table \
+        $ISOHDPFX_OPT \
+        -eltorito-alt-boot \
+        -e --interval:appended_partition_2:all:: \
+        -no-emul-boot \
+        -isohybrid-gpt-basdat \
+        -append_partition 2 0xef efi.img \
+        -output live-image-amd64-efi.hybrid.iso \
+        binary/
+
+    # Remove the old BIOS-only ISO(s), keep the UEFI+BIOS one
+    for old_iso in *.iso; do
+        [ "$old_iso" = "live-image-amd64-efi.hybrid.iso" ] && continue
+        rm -f "$old_iso"
+    done
+    echo "    UEFI+BIOS ISO created: $(du -h live-image-amd64-efi.hybrid.iso | cut -f1)"
+    rm -f bootx64.efi efi.img
+fi
+
 # Find and rename output ISO
 echo ""
 echo "Searching for output ISO..."
