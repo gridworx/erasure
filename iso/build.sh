@@ -58,6 +58,15 @@ lb config \
     --apt-recommends false \
     --cache true
 
+# Enable UEFI boot via GRUB EFI. Ubuntu's lb config doesn't expose
+# --bootloader-efi, so we patch config/binary directly.
+if grep -q "LB_BOOTLOADER_EFI" config/binary 2>/dev/null; then
+    sed -i 's/^LB_BOOTLOADER_EFI=.*/LB_BOOTLOADER_EFI="grub-efi"/' config/binary
+else
+    echo 'LB_BOOTLOADER_EFI="grub-efi"' >> config/binary
+fi
+echo "    EFI bootloader: $(grep LB_BOOTLOADER_EFI config/binary)"
+
 # Copy our Python package into the chroot so the hook can install it
 echo "[3/4] Staging erasure-ctl source for chroot installation..."
 mkdir -p config/includes.chroot/opt/erasure-ctl-src

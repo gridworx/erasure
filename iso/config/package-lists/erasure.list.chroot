@@ -4,6 +4,8 @@ live-boot
 isolinux
 syslinux-common
 syslinux-utils
+grub-efi-amd64-bin
+grub-common
 
 ## Erasure tools
 nwipe
